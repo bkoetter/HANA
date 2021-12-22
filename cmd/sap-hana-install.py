@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Install SAP HANA Database"""
 
 from getpass import getpass
