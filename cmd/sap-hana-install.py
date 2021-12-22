@@ -1,3 +1,5 @@
+"""Install SAP HANA Database"""
+
 from getpass import getpass
 from os import getenv
 from os.path import isfile
