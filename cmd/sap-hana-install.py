@@ -93,7 +93,7 @@ def cmdrun(cmdexe: tuple, passwd: bytes):
 def get_groupid():
     """Determine GID for sapsys or query GID input for new group sapsys"""
     try:
-        return getgrnam("sapsys")
+        return getgrnam("sapsys").gr_gid
     except KeyError:
         print('Warning: Group "sapsys" does not exist')
         try:
