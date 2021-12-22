@@ -82,9 +82,8 @@ def get_cmdexe(opts: dict, hdblcm: str, groupid: int):
 
 
 def cmdrun(cmdexe: tuple, passwd: bytes):
-    print(cmdexe)
     try:
-        run('cat', input=passwd, check=True, shell=True)
+        run(cmdexe, input=passwd, check=True, shell=True)
     except CalledProcessError as err:
         print('WARNING: Command exited with non-zero return code')
         sys.exit(err.returncode)
