@@ -85,6 +85,7 @@ def get_cmdexe(opts: dict, hdblcm: str, groupid: int):
         hdblcm,
         '--batch',
         '--action=install',
+        '--autostart=1',
         f'--sid={opts.get("sid")}',
         f'--number={opts.get("number", "00")}',
         f'--groupid={groupid}',
