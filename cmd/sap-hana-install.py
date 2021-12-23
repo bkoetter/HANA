@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """Install SAP HANA Database"""
-
+import subprocess
 from getpass import getpass
 from os import getenv
 from os.path import isfile
@@ -10,6 +10,19 @@ from subprocess import run, CalledProcessError
 
 import sys
 from grp import getgrnam
+
+
+def prereqcheck():
+    is_missing = False
+    os_packages = ('libatomic1', 'libltdl7')
+    for package in os_packages:
+        try:
+            subprocess.run(f'rpm -q {package}', check=True, shell=True)
+        except CalledProcessError as err:
+            print(f'WARNING: {err}')
+            is_missing = True
+    if is_missing:
+        sys.exit(1)
 
 
 def get_opts():
@@ -67,7 +80,7 @@ def get_hdblcm():
 
 def get_cmdexe(opts: dict, hdblcm: str, groupid: int):
     """get_command builds the command string for OS execution"""
-    return (
+    return " ".join([
         'sudo',
         hdblcm,
         '--batch',
@@ -80,10 +93,11 @@ def get_cmdexe(opts: dict, hdblcm: str, groupid: int):
         f'--logpath=/hana/log/{opts.get("sid")}',
         '--components=server,client',
         '--read_password_from_stdin=xml'
-    )
+    ])
 
 
-def cmdrun(cmdexe: tuple, passwd: bytes):
+def cmdrun(cmdexe: str, passwd: bytes):
+    print(cmdexe)
     try:
         run(cmdexe, input=passwd, check=True, shell=True)
     except CalledProcessError as err:
@@ -106,10 +120,11 @@ def get_groupid():
 
 def main():
     opts: dict = get_opts()
+    prereqcheck()
     hdblcm: str = get_hdblcm()
     passwd: bytes = get_passwd()
     groupid: int = get_groupid()
-    cmdexe: tuple = get_cmdexe(opts, hdblcm, groupid)
+    cmdexe: str = get_cmdexe(opts, hdblcm, groupid)
     cmdrun(cmdexe, passwd)
 
 
