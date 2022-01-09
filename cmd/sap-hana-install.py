@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 """Install SAP HANA Database"""
-import subprocess
 from getpass import getpass
 from os import getenv
 from os.path import isfile
@@ -17,7 +16,7 @@ def prereqcheck():
     os_packages = ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd')
     for package in os_packages:
         try:
-            subprocess.run(f'rpm -q {package}', check=True, shell=True, stdout=DEVNULL)
+            run(f'rpm -q {package}', check=True, shell=True, stdout=DEVNULL)
         except CalledProcessError as err:
             print(f'WARNING: {err}')
             is_missing = True
