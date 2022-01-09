@@ -62,6 +62,19 @@ def get_passwd():
     return bytes("".join(xml_pass), encoding='ascii')
 
 
+def get_groupid():
+    """Determine GID for sapsys or query GID input for new group sapsys"""
+    try:
+        return getgrnam("sapsys").gr_gid
+    except KeyError:
+        print('Warning: Group "sapsys" does not exist')
+        try:
+            return int(input('Enter a GID number to create "sapsys" or any non-numeric input to abort: '))
+        except ValueError:
+            print('Program execution aborted')
+            sys.exit(0)
+
+
 def get_hdblcm():
     """get_hdblcm tries to determine the hdblcm program location"""
     hdblcm_locations = (
@@ -104,19 +117,6 @@ def cmdrun(cmdexe: str, passwd: bytes):
     except CalledProcessError as err:
         print('WARNING: Command exited with non-zero return code')
         sys.exit(err.returncode)
-
-
-def get_groupid():
-    """Determine GID for sapsys or query GID input for new group sapsys"""
-    try:
-        return getgrnam("sapsys").gr_gid
-    except KeyError:
-        print('Warning: Group "sapsys" does not exist')
-        try:
-            return int(input('Enter a GID number to create "sapsys" or any non-numeric input to abort: '))
-        except ValueError:
-            print('Program execution aborted')
-            sys.exit(0)
 
 
 def main():
