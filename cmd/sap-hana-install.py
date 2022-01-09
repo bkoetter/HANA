@@ -14,7 +14,7 @@ from grp import getgrnam
 
 def prereqcheck():
     is_missing = False
-    os_packages = ('libatomic1', 'libltdl7')
+    os_packages = ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd')
     for package in os_packages:
         try:
             subprocess.run(f'rpm -q {package}', check=True, shell=True)
@@ -63,11 +63,11 @@ def get_passwd():
 
 
 def get_hdblcm():
-    """get_hdblcm tries to determine the hdblm program location"""
+    """get_hdblcm tries to determine the hdblcm program location"""
     hdblcm_locations = (
+        '/srv/sap/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
         '/opt/install/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
         f'{getenv("HOME")}/sap-install/SAP_HANA_DATABASE/hdblcm',
-        f'{getenv("HOME")}/hdblcm',
     )
     for hdblcm in hdblcm_locations:
         if isfile(hdblcm):
