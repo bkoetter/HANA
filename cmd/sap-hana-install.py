@@ -63,7 +63,7 @@ def get_passwd():
 
 
 def get_hdblcm():
-    """get_hdblcm tries to determin the location of the hdblm program"""
+    """get_hdblcm tries to determine the hdblm program location"""
     hdblcm_locations = (
         '/opt/install/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
         f'{getenv("HOME")}/sap-install/SAP_HANA_DATABASE/hdblcm',
