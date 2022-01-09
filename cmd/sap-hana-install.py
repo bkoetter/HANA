@@ -6,7 +6,7 @@ from getpass import getpass
 from os import getenv
 from os.path import isfile
 from re import match
-from subprocess import run, CalledProcessError
+from subprocess import run, CalledProcessError, DEVNULL
 
 import sys
 from grp import getgrnam
@@ -17,7 +17,7 @@ def prereqcheck():
     os_packages = ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd')
     for package in os_packages:
         try:
-            subprocess.run(f'rpm -q {package}', check=True, shell=True)
+            subprocess.run(f'rpm -q {package}', check=True, shell=True, stdout=DEVNULL)
         except CalledProcessError as err:
             print(f'WARNING: {err}')
             is_missing = True
@@ -65,7 +65,7 @@ def get_passwd():
 def get_hdblcm():
     """get_hdblcm tries to determine the hdblcm program location"""
     hdblcm_locations = (
-        '/srv/sap/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
+        '/media/sap/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
         '/opt/install/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
         f'{getenv("HOME")}/sap-install/SAP_HANA_DATABASE/hdblcm',
     )
