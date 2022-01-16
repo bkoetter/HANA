@@ -47,9 +47,12 @@ def get_opts():
 def get_passwd():
     """Retrieve password from env or user input, compile password xml input"""
     password = getenv('HANA_PASSWORD')
+    password_verify = ""
     if password is None:
-        password = getpass("Enter master password: ")
-    xml_pass = (
+        while password != password_verify:
+            password = getpass("Enter master password: ")
+            password_verify = getpass("Enter password to verify: ")
+    return bytes("".join((
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<Passwords>',
         f'<password><![CDATA[{password}]]></password>',
@@ -57,8 +60,8 @@ def get_passwd():
         f'<system_user_password><![CDATA[{password}]]></system_user_password>',
         f'<root_password><![CDATA[{password}]]></root_password>',
         '</Passwords>'
-    )
-    return bytes("".join(xml_pass), encoding='ascii')
+    )), encoding='ascii')
+    # return bytes("".join(xml_pass), encoding='ascii')
 
 
 def get_groupid():
@@ -78,6 +81,7 @@ def get_hdblcm():
     """get_hdblcm tries to determine the hdblcm program location"""
     hdblcm_locations = (
         '/media/sap/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
+        '/catalog/media/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
         '/opt/install/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
         f'{getenv("HOME")}/sap-install/SAP_HANA_DATABASE/hdblcm',
     )
