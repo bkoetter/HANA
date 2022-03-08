@@ -26,7 +26,7 @@ def prereqcheck():
 
 def get_opts():
     opts = {}
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
+    if len(sys.argv) != 3:
         print(f'Usage: {sys.argv[0]} <SID> [<Instance-Nr.>]')
         sys.exit(1)
 
