@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 """Install SAP HANA Database"""
+import os
 from getpass import getpass
 from os import getenv
 from os.path import isfile
@@ -13,8 +14,11 @@ from grp import getgrnam
 
 def prereqcheck():
     is_missing = False
-    os_packages = ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd')
-    for package in os_packages:
+    os_packages = {
+        'sles': ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd'),
+        'rhel': ('libatomic', 'uuidd')
+    }
+    for package in os_packages[os.name]:
         try:
             run(f'rpm -q {package}', check=True, shell=True, stdout=DEVNULL)
         except CalledProcessError as err:
