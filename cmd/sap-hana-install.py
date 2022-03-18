@@ -16,7 +16,7 @@ def prereqcheck():
     is_missing = False
     os_packages = {
         'sles': ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd'),
-        'Red Hat Enterprise Linux': ('libatomic', 'libtool-ltdl', 'compat-sap-c++10', 'uuidd')
+        'Red Hat Enterprise Linux': ('libatomic', 'libtool-ltdl', 'compat-sap-c++-10', 'uuidd')
     }
     for package in os_packages[platform.linux_distribution()[0]]:
         try:
