@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """Install SAP HANA Database"""
-import os
+import platform
 from getpass import getpass
 from os import getenv
 from os.path import isfile
@@ -16,9 +16,9 @@ def prereqcheck():
     is_missing = False
     os_packages = {
         'sles': ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd'),
-        'rhel': ('libatomic', 'uuidd')
+        'Red Hat Enterprise Linux': ('libatomic', 'libtool-ltdl', 'compat-sap-c++10', 'uuidd')
     }
-    for package in os_packages[os.name]:
+    for package in os_packages[platform.linux_distribution()[0]]:
         try:
             run(f'rpm -q {package}', check=True, shell=True, stdout=DEVNULL)
         except CalledProcessError as err:
