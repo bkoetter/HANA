@@ -40,6 +40,9 @@ def prereq_check_packages() -> None:
         'sles': ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd'),
         'Red Hat Enterprise Linux': ('libatomic', 'libtool-ltdl', 'compat-sap-c++-10', 'uuidd')
     }
+    if os_packages.get(platform.linux_distribution()[0], None) is None:
+        print(f'Operating system "{platform.linux_distribution()[0]}" not supported')
+        sys.exit(1)
     for package in os_packages[platform.linux_distribution()[0]]:
         try:
             run(f'rpm -q {package}', check=True, shell=True, stdout=DEVNULL)
