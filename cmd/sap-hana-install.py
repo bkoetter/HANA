@@ -2,6 +2,7 @@
 
 """Install SAP HANA Database"""
 import platform
+import socket
 from getpass import getpass
 from os import getenv
 from os.path import isfile
@@ -10,6 +11,7 @@ from subprocess import run, CalledProcessError, DEVNULL
 
 import sys
 from grp import getgrnam
+from pwd import getpwnam
 
 
 def get_opts():
@@ -48,6 +50,22 @@ def prereq_check_packages() -> None:
         sys.exit(1)
 
 
+def prereq_check_hostagent(host="127.0.0.1", port=1129) -> None:
+    try:
+        socket.create_connection((host, port), timeout=20)
+        print(f'Connection to {host} port {port} successful')
+        return None
+    except TimeoutError:
+        print(f'Connection to {host} port {port} timed out')
+        sys.exit(1)
+    except ConnectionRefusedError:
+        print(f'Connection to {host} port {port} refused')
+        sys.exit(1)
+    except socket.error as e:
+        print(f'Connection to {host} port {port} failed: {e}')
+        sys.exit(1)
+
+
 def get_passwd():
     """Retrieve password from env or user input, compile password xml input"""
     password = getenv('HANA_PASSWORD')
@@ -68,19 +86,27 @@ def get_passwd():
     # return bytes("".join(xml_pass), encoding='ascii')
 
 
-def get_userid(opts: dict) -> int:
+def get_userid(user: str) -> int:
     """Determine UID for <sid>adm or query UID for new user <sid>adm"""
-    return 1
+    try:
+        return getpwnam(user).pw_uid
+    except KeyError:
+        print(f'Warning: Group "{user}" does not exist')
+        try:
+            return int(input(f'Enter a UID number to create "{user}" or any non-numeric input to abort: '))
+        except ValueError:
+            print('Program execution aborted')
+            sys.exit(0)
 
 
-def get_groupid() -> int:
+def get_groupid(group: str) -> int:
     """Determine GID for sapsys or query GID input for new group sapsys"""
     try:
-        return getgrnam("sapsys").gr_gid
+        return getgrnam(group).gr_gid
     except KeyError:
-        print('Warning: Group "sapsys" does not exist')
+        print(f'Warning: Group "{group}" does not exist')
         try:
-            return int(input('Enter a GID number to create "sapsys" or any non-numeric input to abort: '))
+            return int(input(f'Enter a GID number to create "{group}" or any non-numeric input to abort: '))
         except ValueError:
             print('Program execution aborted')
             sys.exit(0)
@@ -103,7 +129,7 @@ def get_hdblcm():
     sys.exit(1)
 
 
-def get_cmdexe(opts: dict, hdblcm: str, userid: int, groupid: int):
+def get_cmdexe(opts: dict, hdblcm: str):
     """get_command builds the command string for OS execution"""
     return " ".join([
         'sudo',
@@ -114,8 +140,8 @@ def get_cmdexe(opts: dict, hdblcm: str, userid: int, groupid: int):
         '--autostart=1',
         '--sid=' + opts.get("sid"),
         '--number=' + opts.get("number", "00"),
-        '--userid=' + str(userid),
-        '--groupid=' + str(groupid),
+        '--userid=' + str(get_userid(f'{opts.get("sid").upper()}adm')),
+        '--groupid=' + str(get_groupid('sapsys')),
         '--sapmnt=/hana/shared',
         '--datapath=/hana/data/' + opts.get("sid"),
         '--logpath=/hana/log/' + opts.get("sid"),
@@ -136,11 +162,10 @@ def cmdrun(cmdexe: str, passwd: bytes):
 def main():
     opts: dict = get_opts()
     prereq_check_packages()
+    prereq_check_hostagent()
     hdblcm: str = get_hdblcm()
     passwd: bytes = get_passwd()
-    userid: int = get_userid(opts)
-    groupid: int = get_groupid()
-    cmdexe: str = get_cmdexe(opts, hdblcm, userid, groupid)
+    cmdexe: str = get_cmdexe(opts, hdblcm)
     cmdrun(cmdexe, passwd)
 
 
