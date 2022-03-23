@@ -12,22 +12,6 @@ import sys
 from grp import getgrnam
 
 
-def prereqcheck():
-    is_missing = False
-    os_packages = {
-        'sles': ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd'),
-        'Red Hat Enterprise Linux': ('libatomic', 'libtool-ltdl', 'compat-sap-c++-10', 'uuidd')
-    }
-    for package in os_packages[platform.linux_distribution()[0]]:
-        try:
-            run(f'rpm -q {package}', check=True, shell=True, stdout=DEVNULL)
-        except CalledProcessError as err:
-            print(f'WARNING: {err}')
-            is_missing = True
-    if is_missing:
-        sys.exit(1)
-
-
 def get_opts():
     opts = {}
     if len(sys.argv) != 3:
@@ -46,6 +30,22 @@ def get_opts():
         opts['number'] = sys.argv[2]
 
     return opts
+
+
+def prereq_check_packages() -> None:
+    is_missing = False
+    os_packages = {
+        'sles': ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd'),
+        'Red Hat Enterprise Linux': ('libatomic', 'libtool-ltdl', 'compat-sap-c++-10', 'uuidd')
+    }
+    for package in os_packages[platform.linux_distribution()[0]]:
+        try:
+            run(f'rpm -q {package}', check=True, shell=True, stdout=DEVNULL)
+        except CalledProcessError as err:
+            print(f'WARNING: {err}')
+            is_missing = True
+    if is_missing:
+        sys.exit(1)
 
 
 def get_passwd():
@@ -68,7 +68,12 @@ def get_passwd():
     # return bytes("".join(xml_pass), encoding='ascii')
 
 
-def get_groupid():
+def get_userid(opts: dict) -> int:
+    """Determine UID for <sid>adm or query UID for new user <sid>adm"""
+    return 1
+
+
+def get_groupid() -> int:
     """Determine GID for sapsys or query GID input for new group sapsys"""
     try:
         return getgrnam("sapsys").gr_gid
@@ -98,7 +103,7 @@ def get_hdblcm():
     sys.exit(1)
 
 
-def get_cmdexe(opts: dict, hdblcm: str, groupid: int):
+def get_cmdexe(opts: dict, hdblcm: str, userid: int, groupid: int):
     """get_command builds the command string for OS execution"""
     return " ".join([
         'sudo',
@@ -106,12 +111,13 @@ def get_cmdexe(opts: dict, hdblcm: str, groupid: int):
         '--batch',
         '--action=install',
         '--autostart=1',
-        f'--sid={opts.get("sid")}',
-        f'--number={opts.get("number", "00")}',
-        f'--groupid={groupid}',
+        '--sid=' + opts.get("sid"),
+        '--number=' + opts.get("number", "00"),
+        '--userid=' + str(userid),
+        '--groupid=' + str(groupid),
         '--sapmnt=/hana/shared',
-        f'--datapath=/hana/data/{opts.get("sid")}',
-        f'--logpath=/hana/log/{opts.get("sid")}',
+        '--datapath=/hana/data/' + opts.get("sid"),
+        '--logpath=/hana/log/' + opts.get("sid"),
         '--components=server,client',
         '--read_password_from_stdin=xml'
     ])
@@ -128,11 +134,12 @@ def cmdrun(cmdexe: str, passwd: bytes):
 
 def main():
     opts: dict = get_opts()
-    prereqcheck()
+    prereq_check_packages()
     hdblcm: str = get_hdblcm()
     passwd: bytes = get_passwd()
+    userid: int = get_userid(opts)
     groupid: int = get_groupid()
-    cmdexe: str = get_cmdexe(opts, hdblcm, groupid)
+    cmdexe: str = get_cmdexe(opts, hdblcm, userid, groupid)
     cmdrun(cmdexe, passwd)
 
 
