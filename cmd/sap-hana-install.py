@@ -110,6 +110,7 @@ def get_cmdexe(opts: dict, hdblcm: str, userid: int, groupid: int):
         hdblcm,
         '--batch',
         '--action=install',
+        '--verify_signature',
         '--autostart=1',
         '--sid=' + opts.get("sid"),
         '--number=' + opts.get("number", "00"),
