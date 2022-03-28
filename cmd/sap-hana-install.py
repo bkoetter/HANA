@@ -157,11 +157,10 @@ def get_hdblcm():
     sys.exit(1)
 
 
-def cmd_hdblcm_install(opts: dict, hdblcm: str, passwd: bytes) -> None:
-    """get_command builds the command string for OS execution"""
-    cmdexe = " ".join([
-        'sudo',
-        hdblcm,
+def cmd_hdblcm_install(opts: dict, passwd: bytes, hdblcm: str) -> None:
+    """cmd_hdblcm_install executes command for SAP HANA installation"""
+    cmd = " ".join([
+        'sudo -n', hdblcm,
         '--batch',
         '--action=install',
         '--verify_signature',
@@ -176,10 +175,28 @@ def cmd_hdblcm_install(opts: dict, hdblcm: str, passwd: bytes) -> None:
         '--components=server,client',
         '--read_password_from_stdin=xml'
     ])
+    cmd_run(cmd, passwd)
+
+
+def cmd_hdbuserstore_set(opts: dict, passwd: bytes, db: str, hdbuserstore: str = 'hdbuserstore') -> None:
+    """cmd_hdbuserstore_set executes command for SAP HANA installation"""
+    if db is None:
+        return None
+
+    fqdn = socket.getaddrinfo(socket.gethostname(), 0, flags=socket.AI_CANONNAME)[0][3]
+    cmd = " ".join([
+        'sudo -niu ' + f'{opts["sid"].lower}', hdbuserstore,
+        'Set', fqdn + f':3{opts.get("number", 00)}13@{db.upper()}',
+        'SYSTEM_' + db.upper(), f'{passwd}'
+    ])
+    cmd_run(cmd)
+
+
+def cmd_run(cmd: str, passwd: bytes = None) -> None:
     try:
-        run(cmdexe, input=passwd, check=True, shell=True)
+        run(cmd, input=passwd, check=True, shell=True)
     except CalledProcessError as err:
-        print('WARNING: Command exited with non-zero return code')
+        print(f'WARNING: Command "{cmd}" exited with non-zero return code')
         sys.exit(err.returncode)
 
 
@@ -189,7 +206,9 @@ def main():
     prereq_check_hostagent()
     hdblcm: str = get_hdblcm()
     passwd: bytes = get_passwd()
-    cmd_hdblcm_install(opts, hdblcm, passwd)
+    cmd_hdblcm_install(opts, passwd, hdblcm)
+    cmd_hdbuserstore_set(opts, passwd, db='SYSTEMDB')
+    cmd_hdbuserstore_set(opts, passwd, db=opts.get('sid'))
 
 
 if __name__ == '__main__':
