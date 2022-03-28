@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """Install SAP HANA Database"""
-import platform
+import csv
 import socket
 from getpass import getpass
 from os import getenv
@@ -16,7 +16,7 @@ from pwd import getpwnam
 
 def get_opts():
     opts = {}
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 2:
         print(f'Usage: {sys.argv[0]} <SID> [<Instance-Nr.>]')
         sys.exit(1)
 
@@ -34,21 +34,46 @@ def get_opts():
     return opts
 
 
+def get_os_release() -> dict:
+    if sys.platform != 'linux':
+        print(f'Error: Operating system {sys.platform} unsupported. Linux is supported exclusively.')
+        sys.exit(1)
+
+    os_release = {}
+    os_release_file = '/etc/os-release'
+
+    try:
+        with open(os_release_file) as f:
+            reader = csv.reader(f, delimiter='=')
+            for row in reader:
+                if len(row) >= 2:
+                    os_release[row[0]] = row[1]
+    except FileNotFoundError:
+        print(f'Error: File {os_release_file} not found. Linux distribution possibly unsupported.')
+        sys.exit(1)
+
+    return os_release
+
+
 def prereq_check_packages() -> None:
     is_missing = False
     os_packages = {
-        'sles': ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd'),
-        'Red Hat Enterprise Linux': ('libatomic', 'libtool-ltdl', 'compat-sap-c++-10', 'uuidd')
+        'SLES': ('insserv-compat', 'libatomic1', 'libltdl7', 'uuidd'),
+        'RHEL': ('libatomic', 'libtool-ltdl', 'compat-sap-c++-10', 'uuidd')
     }
-    if os_packages.get(platform.linux_distribution()[0], None) is None:
-        print(f'Operating system "{platform.linux_distribution()[0]}" not supported')
+    dist_name = get_os_release()["NAME"]
+
+    if os_packages.get(dist_name, None) is None:
+        print(f'Operating system "{dist_name}" not supported')
         sys.exit(1)
-    for package in os_packages[platform.linux_distribution()[0]]:
+
+    for package in os_packages[dist_name]:
         try:
             run(f'rpm -q {package}', check=True, shell=True, stdout=DEVNULL)
         except CalledProcessError as err:
-            print(f'WARNING: {err}')
+            print(f'Error: Operating system package {package} missing ({err})')
             is_missing = True
+
     if is_missing:
         sys.exit(1)
 
