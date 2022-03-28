@@ -157,9 +157,9 @@ def get_hdblcm():
     sys.exit(1)
 
 
-def get_cmdexe(opts: dict, hdblcm: str):
+def cmd_hdblcm_install(opts: dict, hdblcm: str, passwd: bytes) -> None:
     """get_command builds the command string for OS execution"""
-    return " ".join([
+    cmdexe = " ".join([
         'sudo',
         hdblcm,
         '--batch',
@@ -176,10 +176,6 @@ def get_cmdexe(opts: dict, hdblcm: str):
         '--components=server,client',
         '--read_password_from_stdin=xml'
     ])
-
-
-def cmdrun(cmdexe: str, passwd: bytes):
-    print(cmdexe)
     try:
         run(cmdexe, input=passwd, check=True, shell=True)
     except CalledProcessError as err:
@@ -193,8 +189,7 @@ def main():
     prereq_check_hostagent()
     hdblcm: str = get_hdblcm()
     passwd: bytes = get_passwd()
-    cmdexe: str = get_cmdexe(opts, hdblcm)
-    cmdrun(cmdexe, passwd)
+    cmd_hdblcm_install(opts, hdblcm, passwd)
 
 
 if __name__ == '__main__':
