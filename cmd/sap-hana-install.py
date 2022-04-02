@@ -156,7 +156,7 @@ def get_hdblcm() -> str:
     sys.exit(1)
 
 
-def cmd_hdblcm_install(opts: dict, password_xml: bytes, hdblcm: str) -> None:
+def hdblcm_install(opts: dict, password_xml: bytes, hdblcm: str) -> None:
     """cmd_hdblcm_install executes command for SAP HANA installation"""
     cmd = " ".join([
         'sudo -n', hdblcm,
@@ -177,7 +177,7 @@ def cmd_hdblcm_install(opts: dict, password_xml: bytes, hdblcm: str) -> None:
     cmd_run(cmd, password_xml)
 
 
-def cmd_hdbuserstore_set(opts: dict, password: str, db: str, user: str, hdbuserstore: str = 'hdbuserstore') -> None:
+def hdbuserstore_set(opts: dict, password: str, db: str, user: str, hdbuserstore: str = 'hdbuserstore') -> None:
     """cmd_hdbuserstore_set executes command for SAP HANA installation"""
     if db is None:
         return None
@@ -205,10 +205,10 @@ def main():
     prereq_check_hostagent()
     hdblcm: str = get_hdblcm()
     password_xml, password = get_passwd()
-    cmd_hdblcm_install(opts, password_xml, hdblcm)
-    cmd_hdbuserstore_set(opts, password, db='SYSTEMDB', user='BACKUP')
-    cmd_hdbuserstore_set(opts, password, db='SYSTEMDB', user='SYSTEM_SYSTEMDB')
-    cmd_hdbuserstore_set(opts, password, db=opts["sid"], user=f'SYSTEM_{opts["sid"]}')
+    hdblcm_install(opts, password_xml, hdblcm)
+    hdbuserstore_set(opts, password, db='SYSTEMDB', user='BACKUP')
+    hdbuserstore_set(opts, password, db='SYSTEMDB', user='SYSTEM_SYSTEMDB')
+    hdbuserstore_set(opts, password, db=opts["sid"], user=f'SYSTEM_{opts["sid"]}')
 
 
 if __name__ == '__main__':
