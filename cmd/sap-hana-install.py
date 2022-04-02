@@ -94,9 +94,9 @@ def prereq_check_hostagent(host="127.0.0.1", port=1129) -> None:
         sys.exit(1)
 
 
-def get_passwd():
+def get_passwd() -> (bytes, str):
     """Retrieve password from env or user input, compile password xml input"""
-    password = getenv('HANA_PASSWORD')
+    password: str = getenv('HANA_PASSWORD')
     password_verify = ""
     if password is None:
         while password != password_verify:
@@ -110,8 +110,7 @@ def get_passwd():
         f'<system_user_password><![CDATA[{password}]]></system_user_password>',
         f'<root_password><![CDATA[{password}]]></root_password>',
         '</Passwords>'
-    )), encoding='ascii')
-    # return bytes("".join(xml_pass), encoding='ascii')
+    )), encoding='ascii'), password
 
 
 def get_userid(user: str) -> int:
@@ -140,7 +139,7 @@ def get_groupid(group: str) -> int:
             sys.exit(0)
 
 
-def get_hdblcm():
+def get_hdblcm() -> str:
     """get_hdblcm tries to determine the hdblcm program location"""
     hdblcm_locations = (
         '/media/sap/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
@@ -157,7 +156,7 @@ def get_hdblcm():
     sys.exit(1)
 
 
-def cmd_hdblcm_install(opts: dict, passwd: bytes, hdblcm: str) -> None:
+def cmd_hdblcm_install(opts: dict, password_xml: bytes, hdblcm: str) -> None:
     """cmd_hdblcm_install executes command for SAP HANA installation"""
     cmd = " ".join([
         'sudo -n', hdblcm,
@@ -175,10 +174,10 @@ def cmd_hdblcm_install(opts: dict, passwd: bytes, hdblcm: str) -> None:
         '--components=server,client',
         '--read_password_from_stdin=xml'
     ])
-    cmd_run(cmd, passwd)
+    cmd_run(cmd, password_xml)
 
 
-def cmd_hdbuserstore_set(opts: dict, passwd: bytes, db: str, user: str, hdbuserstore: str = 'hdbuserstore') -> None:
+def cmd_hdbuserstore_set(opts: dict, password: str, db: str, user: str, hdbuserstore: str = 'hdbuserstore') -> None:
     """cmd_hdbuserstore_set executes command for SAP HANA installation"""
     if db is None:
         return None
@@ -187,14 +186,14 @@ def cmd_hdbuserstore_set(opts: dict, passwd: bytes, db: str, user: str, hdbusers
     cmd = " ".join([
         'sudo -niu ' + f'{opts["sid"].lower}', hdbuserstore,
         'Set', fqdn + f':3{opts.get("number", 00)}13@{db.upper()}',
-        user, f'{passwd}'
+        user, f'{password}'
     ])
     cmd_run(cmd)
 
 
-def cmd_run(cmd: str, passwd: bytes = None) -> None:
+def cmd_run(cmd: str, password_xml: bytes = None) -> None:
     try:
-        run(cmd, input=passwd, check=True, shell=True)
+        run(cmd, input=password_xml, check=True, shell=True)
     except CalledProcessError as err:
         print(f'WARNING: Command "{cmd}" exited with non-zero return code')
         sys.exit(err.returncode)
@@ -205,11 +204,11 @@ def main():
     prereq_check_packages()
     prereq_check_hostagent()
     hdblcm: str = get_hdblcm()
-    passwd: bytes = get_passwd()
-    cmd_hdblcm_install(opts, passwd, hdblcm)
-    cmd_hdbuserstore_set(opts, passwd, db='SYSTEMDB', user='BACKUP')
-    cmd_hdbuserstore_set(opts, passwd, db='SYSTEMDB', user='SYSTEM_SYSTEMDB')
-    cmd_hdbuserstore_set(opts, passwd, db=opts["sid"], user=f'SYSTEM_{opts["sid"]}')
+    password_xml, password = get_passwd()
+    cmd_hdblcm_install(opts, password_xml, hdblcm)
+    cmd_hdbuserstore_set(opts, password, db='SYSTEMDB', user='BACKUP')
+    cmd_hdbuserstore_set(opts, password, db='SYSTEMDB', user='SYSTEM_SYSTEMDB')
+    cmd_hdbuserstore_set(opts, password, db=opts["sid"], user=f'SYSTEM_{opts["sid"]}')
 
 
 if __name__ == '__main__':
