@@ -178,7 +178,7 @@ def cmd_hdblcm_install(opts: dict, passwd: bytes, hdblcm: str) -> None:
     cmd_run(cmd, passwd)
 
 
-def cmd_hdbuserstore_set(opts: dict, passwd: bytes, db: str, hdbuserstore: str = 'hdbuserstore') -> None:
+def cmd_hdbuserstore_set(opts: dict, passwd: bytes, db: str, user: str, hdbuserstore: str = 'hdbuserstore') -> None:
     """cmd_hdbuserstore_set executes command for SAP HANA installation"""
     if db is None:
         return None
@@ -187,7 +187,7 @@ def cmd_hdbuserstore_set(opts: dict, passwd: bytes, db: str, hdbuserstore: str =
     cmd = " ".join([
         'sudo -niu ' + f'{opts["sid"].lower}', hdbuserstore,
         'Set', fqdn + f':3{opts.get("number", 00)}13@{db.upper()}',
-        'SYSTEM_' + db.upper(), f'{passwd}'
+        user, f'{passwd}'
     ])
     cmd_run(cmd)
 
@@ -207,8 +207,9 @@ def main():
     hdblcm: str = get_hdblcm()
     passwd: bytes = get_passwd()
     cmd_hdblcm_install(opts, passwd, hdblcm)
-    cmd_hdbuserstore_set(opts, passwd, db='SYSTEMDB')
-    cmd_hdbuserstore_set(opts, passwd, db=opts.get('sid'))
+    cmd_hdbuserstore_set(opts, passwd, db='SYSTEMDB', user='BACKUP')
+    cmd_hdbuserstore_set(opts, passwd, db='SYSTEMDB', user='SYSTEM_SYSTEMDB')
+    cmd_hdbuserstore_set(opts, passwd, db=opts["sid"], user=f'SYSTEM_{opts["sid"]}')
 
 
 if __name__ == '__main__':
