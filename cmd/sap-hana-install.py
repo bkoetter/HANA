@@ -30,6 +30,8 @@ def get_opts():
             print(f'Syntax-Error. Invalid instance number: {sys.argv[2]}')
             sys.exit(1)
         opts['number'] = sys.argv[2]
+    else:
+        opts['number'] = '00'
 
     return opts
 
@@ -165,7 +167,7 @@ def hdblcm_install(opts: dict, password_xml: bytes, hdblcm: str) -> None:
         '--verify_signature',
         '--autostart=1',
         '--sid=' + opts.get("sid"),
-        '--number=' + opts.get("number", "00"),
+        '--number=' + opts['number'],
         '--userid=' + str(get_userid(f'{opts.get("sid").upper()}adm')),
         '--groupid=' + str(get_groupid('sapsys')),
         '--sapmnt=/hana/shared',
@@ -177,18 +179,23 @@ def hdblcm_install(opts: dict, password_xml: bytes, hdblcm: str) -> None:
     cmd_run(cmd, password_xml)
 
 
-def hdbuserstore_set(opts: dict, password: str, db: str, user: str, hdbuserstore: str = 'hdbuserstore') -> None:
+def hdbuserstore_set(opts: dict, db: str, user: str, password: str, key: str) -> None:
     """cmd_hdbuserstore_set executes command for SAP HANA installation"""
     if db is None:
         return None
 
     fqdn = socket.getaddrinfo(socket.gethostname(), 0, flags=socket.AI_CANONNAME)[0][3]
-    cmd = " ".join([
-        'sudo -niu ' + f'{opts["sid"].lower}', hdbuserstore,
-        'Set', fqdn + f':3{opts.get("number", 00)}13@{db.upper()}',
-        user, f'{password}'
+    cmd: str = " ".join([
+        'sudo -niu', f'{opts["sid"].lower()}adm', 'hdbuserstore',
+        'Set', key, fqdn + f':3{opts["number"]}13@{db.upper()}',
+        user
     ])
-    cmd_run(cmd)
+    if any([symbol in password for symbol in ['$', '#', '\\']]):
+        print('Script cannot add hdbuserstore entries automatically. Execute following commands manually:')
+        print(cmd.replace('hdbuserstore', 'hdbuserstore -i'))
+    else:
+        cmd = " ".join([cmd, f'{password}'])
+        cmd_run(cmd)
 
 
 def cmd_run(cmd: str, password_xml: bytes = None) -> None:
@@ -206,9 +213,9 @@ def main():
     hdblcm: str = get_hdblcm()
     password_xml, password = get_passwd()
     hdblcm_install(opts, password_xml, hdblcm)
-    hdbuserstore_set(opts, password, db='SYSTEMDB', user='BACKUP')
-    hdbuserstore_set(opts, password, db='SYSTEMDB', user='SYSTEM_SYSTEMDB')
-    hdbuserstore_set(opts, password, db=opts["sid"], user=f'SYSTEM_{opts["sid"]}')
+    hdbuserstore_set(opts, db='SYSTEMDB', user='BACKUP', password=password, key='BACKUP')
+    hdbuserstore_set(opts, db='SYSTEMDB', user='SYSTEM', password=password, key='SYSTEM_SYSTEMDB')
+    hdbuserstore_set(opts, db=opts["sid"], user='SYSTEM', password=password, key=f'SYSTEM_{opts["sid"]}')
 
 
 if __name__ == '__main__':
