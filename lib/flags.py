@@ -3,11 +3,11 @@ from re import match
 from sys import argv, exit
 
 
-def main():
+def main() -> None:
     print('This is a module and provides no standalone functionality.')
 
 
-def get_opts():
+def get_opts() -> dict:
     opts = {}
     if len(argv) < 2:
         print(f'Usage: {argv[0]} <SID> [<Instance-Nr.>]')
