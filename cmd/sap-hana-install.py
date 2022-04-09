@@ -12,6 +12,7 @@ import sys
 from grp import getgrnam
 from pwd import getpwnam
 
+from lib.cmd_run import cmd_run
 from lib.flags import get_opts
 
 
@@ -175,14 +176,6 @@ def hdbuserstore_set(opts: dict, db: str, user: str, password: str, key: str) ->
     else:
         cmd = " ".join([cmd, f'{password}'])
         cmd_run(cmd)
-
-
-def cmd_run(cmd: str, password_xml: bytes = None) -> None:
-    try:
-        run(cmd, input=password_xml, check=True, shell=True)
-    except CalledProcessError as err:
-        print(f'WARNING: Command "{cmd}" exited with non-zero return code')
-        sys.exit(err.returncode)
 
 
 def main():
