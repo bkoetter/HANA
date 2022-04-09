@@ -8,6 +8,7 @@ def main():
 
 
 def cmd_run(cmd: str, stdin: bytes = None) -> None:
+    """Execute an OS command with common and trivial error handling. Will terminate program flow in case of error."""
     try:
         run(cmd, input=stdin, check=True, shell=True)
     except CalledProcessError as err:
