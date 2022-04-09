@@ -6,34 +6,13 @@ import socket
 from getpass import getpass
 from os import getenv
 from os.path import isfile
-from re import match
 from subprocess import run, CalledProcessError, DEVNULL
 
 import sys
 from grp import getgrnam
 from pwd import getpwnam
 
-
-def get_opts():
-    opts = {}
-    if len(sys.argv) < 2:
-        print(f'Usage: {sys.argv[0]} <SID> [<Instance-Nr.>]')
-        sys.exit(1)
-
-    if not match('[A-Z][A-Z0-9]{2}$', sys.argv[1]):
-        print(f'Syntax-Error. Invalid SID: {sys.argv[1]}')
-        sys.exit(1)
-    opts['sid'] = sys.argv[1]
-
-    if len(sys.argv) > 2:
-        if not match(r'\d{2}$', sys.argv[2]):
-            print(f'Syntax-Error. Invalid instance number: {sys.argv[2]}')
-            sys.exit(1)
-        opts['number'] = sys.argv[2]
-    else:
-        opts['number'] = '00'
-
-    return opts
+from lib.flags import get_opts
 
 
 def get_os_release() -> dict:
@@ -213,6 +192,7 @@ def main():
     hdblcm: str = get_hdblcm()
     password_xml, password = get_passwd()
     hdblcm_install(opts, password_xml, hdblcm)
+    # ~/.config/hdb/.secret.xml
     hdbuserstore_set(opts, db='SYSTEMDB', user='BACKUP', password=password, key='BACKUP')
     hdbuserstore_set(opts, db='SYSTEMDB', user='SYSTEM', password=password, key='SYSTEM_SYSTEMDB')
     hdbuserstore_set(opts, db=opts["sid"], user='SYSTEM', password=password, key=f'SYSTEM_{opts["sid"]}')
