@@ -148,7 +148,7 @@ def hdblcm_install(opts: dict, password_xml: bytes, hdblcm: str) -> None:
         '--autostart=1',
         '--sid=' + opts.get("sid"),
         '--number=' + opts['number'],
-        '--userid=' + str(get_userid(f'{opts.get("sid").upper()}adm')),
+        '--userid=' + str(get_userid(f'{opts.get("sid").lower()}adm')),
         '--groupid=' + str(get_groupid('sapsys')),
         '--sapmnt=/hana/shared',
         '--datapath=/hana/data/' + opts.get("sid"),
