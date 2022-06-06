@@ -3,10 +3,6 @@ from re import match
 from sys import argv, exit
 
 
-def main() -> None:
-    print('This is a module and provides no standalone functionality.')
-
-
 def get_opts() -> dict:
     opts = {}
     if len(argv) < 2:
@@ -27,6 +23,10 @@ def get_opts() -> dict:
         opts['number'] = '00'
 
     return opts
+
+
+def main() -> None:
+    print('This is a module and provides no standalone functionality.')
 
 
 if __name__ == '__main__':
