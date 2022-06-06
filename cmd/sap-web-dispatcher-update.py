@@ -4,8 +4,8 @@
 from glob import glob
 from os import path
 
-from lib.cmd_run import cmd_run
-from lib.flags import get_opts
+from cmd.lib.cmd_run import cmd_run
+from cmd.lib.flags import get_opts
 
 
 def get_update() -> str:

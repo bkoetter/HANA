@@ -141,7 +141,7 @@ def get_hdblcm() -> str:
 def hdblcm_install(opts: dict, password_xml: bytes, hdblcm: str) -> None:
     """cmd_hdblcm_install executes command for SAP HANA installation"""
     cmd = " ".join([
-        'sudo -n', hdblcm,
+        'sudo', hdblcm,
         '--batch',
         '--action=install',
         '--verify_signature',
@@ -166,7 +166,7 @@ def hdbuserstore_set(opts: dict, db: str, user: str, password: str, key: str) ->
 
     fqdn = socket.getaddrinfo(socket.gethostname(), 0, flags=socket.AI_CANONNAME)[0][3]
     cmd: str = " ".join([
-        'sudo -niu', f'{opts["sid"].lower()}adm', 'hdbuserstore',
+        'sudo -iu', f'{opts["sid"].lower()}adm', 'hdbuserstore',
         'Set', key, fqdn + f':3{opts["number"]}13@{db.upper()}',
         user
     ])
