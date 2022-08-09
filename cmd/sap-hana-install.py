@@ -100,7 +100,7 @@ def get_userid(user: str) -> int:
     try:
         return getpwnam(user).pw_uid
     except KeyError:
-        print(f'Warning: Group "{user}" does not exist')
+        print(f'Warning: User "{user}" does not exist')
         try:
             return int(input(f'Enter a UID number to create "{user}" or any non-numeric input to abort: '))
         except ValueError:
