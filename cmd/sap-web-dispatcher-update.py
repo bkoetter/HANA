@@ -4,14 +4,14 @@
 from glob import glob
 from os import path
 
-from cmd.lib.cmd_run import cmd_run
-from cmd.lib.flags import get_opts
+from lib.cmd_run import cmd_run
+from lib.flags import get_opts
 
 
 def get_update() -> str:
     """get_update tries to determine the latest available SAP Web Dispatcher update file"""
     files: list = []
-    update_file = 'SAPWEBDISP_SP_*-80005553.SAR'
+    update_file = 'SAPWEBDISP_SP_*-*.SAR'
     update_locations = (
         '/catalog/media/01-media/sap-web-dispatcher/',
     )
