@@ -12,7 +12,6 @@
 use strict;
 use warnings;
 use 5.018_000;
-use Pod::Usage qw(pod2usage);
 use Getopt::Std;
 use Getopt::Long;
 use FindBin qw($Bin);
@@ -26,8 +25,10 @@ sub main {                                                              # Main p
     my $opts = {};                                                      # Store all command line arguments in a hash
     getopts('c:hd:t:u:vf', $opts);                                      # Define possible command line arguments
 
-    pod2usage(-exitstatus => 0, -verbose => 2) if $opts->{h}||!%$opts;  # Display usage info when called with -h or no arguments
-    
+    if ($opts->{h}||!%$opts) {
+        Pod::Usage::pod2usage(-exitstatus => 0, -verbose => 2);         # Display usage info when called with -h or no arguments
+    }
+
     checkEnvironment($opts);                                            # Verify current environment, user, settings
     setHanaUpdateType($opts);                                           # Determine and set HANA Server or COCKPIT
     execSapHanaUpdate($opts);                                           # Execute SAP HANA update command
