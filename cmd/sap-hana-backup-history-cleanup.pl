@@ -2,13 +2,12 @@
 
 use strict;
 use warnings;
-use List::Util qw(first);
 use File::Basename;
 use v5.26;
 
 my $hanaBackupFile = shift || die "Syntax Error: $0 <backup_file>\n";
-my $hdbBackupCheck = first {-x $_} </usr/sap/[A-Z][A-Z0-9][A-Z0-9]/HDB[0-9][0-9]/exe/hdbbackupcheck>;
-my $hdbsql = first {-x $_} </usr/sap/[A-Z][A-Z0-9][A-Z0-9]/HDB[0-9][0-9]/exe/hdbsql>;
+my $hdbBackupCheck = List::Util::first {-x $_} </usr/sap/[A-Z][A-Z0-9][A-Z0-9]/HDB[0-9][0-9]/exe/hdbbackupcheck>;
+my $hdbsql = List::Util::first {-x $_} </usr/sap/[A-Z][A-Z0-9][A-Z0-9]/HDB[0-9][0-9]/exe/hdbsql>;
 
 if (not -f $hanaBackupFile) {die "Error: Backup file '$hanaBackupFile' not found.\n"};
 if ($hdbBackupCheck eq '') {die "Error: Program 'hdbbackupcheck' not found.\n"};
@@ -21,9 +20,9 @@ if (defined $? and $?) {
     die "Error: Execution of hdbbackupcheck failed: ", $? >> 8, "\n", @backupInfo;
 }
 elsif (@backupInfo) {
-    my $backupId = first {s/^\s*backupId\s*:\s*//} @backupInfo;
-    my $dbName = first {s/^\s*DatabaseName\s*:\s*//} @backupInfo;
-    my $sid = first {s/^\s*SID\s*:\s*//} @backupInfo;
+    my $backupId = List::Util::first {s/^\s*backupId\s*:\s*//} @backupInfo;
+    my $dbName = List::Util::first {s/^\s*DatabaseName\s*:\s*//} @backupInfo;
+    my $sid = List::Util::first {s/^\s*SID\s*:\s*//} @backupInfo;
 
     if ($backupId and $dbName and $sid) {
         chomp($backupId, $dbName, $sid);
