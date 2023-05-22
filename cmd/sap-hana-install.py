@@ -124,8 +124,7 @@ def get_groupid(group: str) -> int:
 def get_hdblcm() -> str:
     """get_hdblcm tries to determine the hdblcm program location"""
     hdblcm_locations = (
-        '/media/sap/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
-        '/catalog/media/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
+        '/catalog/02-extracted/sap-hana/SAP_HANA_DATABASE/hdblcm',
         '/opt/install/02-extracted/hana/SAP_HANA_DATABASE/hdblcm',
         f'{getenv("HOME")}/sap-install/SAP_HANA_DATABASE/hdblcm',
     )

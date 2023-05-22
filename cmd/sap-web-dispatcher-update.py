@@ -13,7 +13,7 @@ def get_update() -> str:
     files: list = []
     update_file = 'SAPWEBDISP_SP_*-*.SAR'
     update_locations = (
-        '/catalog/media/01-media/sap-web-dispatcher/',
+        '/catalog/01-media/sap-web-dispatcher/',
     )
     for directory in update_locations:
         files = glob(path.join(directory, update_file))
@@ -40,7 +40,7 @@ def extract_update(opts: dict, file):
         f'sudo -niu {opts["sid"].lower()}adm',
         f'/usr/sap/hostctrl/exe/SAPCAR',
         f'-R /usr/sap/{opts["sid"]}/SYS/exe/run',
-        f'-crl /catalog/media/95-automation/sapcar/crlbag.p7s',
+        f'-crl /catalog/95-automation/sapcar/crlbag.p7s',
         f'-manifest SIGNATURE.SMF',
         f'-xVf {file}'
     ])
