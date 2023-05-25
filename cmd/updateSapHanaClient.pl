@@ -37,7 +37,7 @@ sub getHdbclnt {
 }
 
 sub getHost {
-    my $host = List::Util::first {s/^DATA FILE\s+:\s.+\/(\w+)\/SSFS_HDB.DAT$/$1/s} qx(hdbuserstore list);
+    my $host = List::Util::first {s/^DATA FILE\s+:\s.+\/([\w-]+)\/SSFS_HDB.DAT$/$1/s} qx(hdbuserstore list);
     if (!defined $host) {
         die "Error: Failed to determine host from 'hdbuserstore list'\n";
     }
