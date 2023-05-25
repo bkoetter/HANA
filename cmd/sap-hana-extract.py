@@ -49,9 +49,9 @@ def get_cmd_sapcar(opts: Dict[str, str]) -> str:
     return ''
 
 
-# LD_LIBRARY_PATH=/catalog/media/95-automation/sapcar /catalog/media/95-automation/sapcar/SAPCAR -R /catalog/media/02-extracted/hana -crl /catalog/media/95-automation/sapcar/crlbag.p7s -manifest SAP_HANA_CLIENT/SIGNATURE.SMF -xVf /catalog/media/01-media/sap-hana-client/IMDB_CLIENT20_011_20-80002082.SAR
-# LD_LIBRARY_PATH=/catalog/media/95-automation/sapcar /catalog/media/95-automation/sapcar/SAPCAR -R /catalog/media/02-extracted/hana -crl /catalog/media/95-automation/sapcar/crlbag.p7s -manifest SAP_HANA_DATABASE/SIGNATURE.SMF -xVf /catalog/media/01-media/sap-hana-database/IMDB_SERVER20_061_0-80002031.SAR
-# chmod a+r /catalog/media/02-extracted/hana/*/*.SMF-extracted/hana/*/*.SMF
+# LD_LIBRARY_PATH=/catalog/95-automation/sapcar /catalog/95-automation/sapcar/SAPCAR -R /catalog/02-extracted/hana -crl /catalog/95-automation/sapcar/crlbag.p7s -manifest SAP_HANA_CLIENT/SIGNATURE.SMF -xVf /catalog/01-media/sap-hana-client/IMDB_CLIENT20_011_20-80002082.SAR
+# LD_LIBRARY_PATH=/catalog/95-automation/sapcar /catalog/95-automation/sapcar/SAPCAR -R /catalog/02-extracted/hana -crl /catalog/95-automation/sapcar/crlbag.p7s -manifest SAP_HANA_DATABASE/SIGNATURE.SMF -xVf /catalog/01-media/sap-hana-database/IMDB_SERVER20_061_0-80002031.SAR
+# chmod a+r /catalog/02-extracted/hana/*/*.SMF-extracted/hana/*/*.SMF
 
 
 def main():
