@@ -86,7 +86,7 @@ sub execSapHanaUpdate {
 
     say $cmd;
     system($cmd);
-    if (defined $? && $ != 0) {
+    if (defined $? && $? != 0) {
         say "STATUS: WARNING: Execution ended with non-zero error code: $?";
     }
     else {
