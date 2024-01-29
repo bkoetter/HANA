@@ -48,6 +48,7 @@ sub getHost {
 sub getHdbinst {
     my @paths = (
         "/catalog/02-extracted/sap-hana-database/SAP_HANA_CLIENT/hdbinst",
+        "/catalog/02-extracted/sap-hana/SAP_HANA_CLIENT/hdbinst",
         "/opt/sap_media/SAP_HANA/SAP_HANA_CLIENT/hdbinst",
         "/usr/sap/shared/SAP/HANA/SAP_HANA_CLIENT/hdbinst",
     );
