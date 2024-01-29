@@ -6,8 +6,8 @@ use File::Basename;
 use v5.26;
 
 my $hanaBackupFile = shift || die "Syntax Error: $0 <backup_file>\n";
-my $hdbBackupCheck = List::Util::first {-x $_} </usr/sap/[A-Z][A-Z0-9][A-Z0-9]/HDB[0-9][0-9]/exe/hdbbackupcheck>;
-my $hdbsql = List::Util::first {-x $_} </usr/sap/[A-Z][A-Z0-9][A-Z0-9]/HDB[0-9][0-9]/exe/hdbsql>;
+my $hdbBackupCheck = (</usr/sap/[A-Z][A-Z0-9][A-Z0-9]/HDB[0-9][0-9]/exe/hdbbackupcheck>)[0] || die "Error: 'hdbbackupcheck' not found.\n";
+my $hdbsql = (</usr/sap/[A-Z][A-Z0-9][A-Z0-9]/HDB[0-9][0-9]/exe/hdbsql>)[0] || die "Error: 'hdbsql' not found.\n";
 
 if (not -f $hanaBackupFile) {die "Error: Backup file '$hanaBackupFile' not found.\n"};
 if ($hdbBackupCheck eq '') {die "Error: Program 'hdbbackupcheck' not found.\n"};
