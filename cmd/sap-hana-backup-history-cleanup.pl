@@ -31,7 +31,9 @@ my $sid = (grep {s/^\s*SID\s*:\s*//} @backupInfo)[0]; print $sid if $ENV{DEBUG};
 
 if ($backupId and $dbName and $sid) {
     chomp($backupId, $dbName, $sid);
-    my @out = qx($hdbsql -U SYSTEM_SYSTEMDB BACKUP CATALOG DELETE for $dbName ALL BEFORE BACKUP_ID $backupId complete 2>&1);
+    my $cmd = "$hdbsql -U SYSTEM_SYSTEMDB BACKUP CATALOG DELETE for $dbName ALL BEFORE BACKUP_ID $backupId COMPLETE";
+    say $cmd if $ENV{DEBUG};
+    my @out = qx($cmd 2>&1);
 
     if (defined $? and $?) {
         die "Error: Execution of hdbsql failed: ", $? >> 8, "\n", @out;
