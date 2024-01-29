@@ -39,7 +39,7 @@ if ($backupId and $dbName and $sid) {
         die "Error: Execution of hdbsql failed: ", $? >> 8, "\n", @out;
     }
     else {
-        say "Success: All backups before backup ID $backupId deleted for $sid.";
+        say "Success: All backups before backup ID $backupId deleted for $dbName.";
     }
 } else {
     die "Error: Unable to determine HANA Backup information from '$hanaBackupFile'.\n";
