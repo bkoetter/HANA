@@ -16,26 +16,29 @@ if ($hdbsql eq '') {die "Error: Program 'hdbsql' not found.\n"};
 $ENV{LD_LIBRARY_PATH} = dirname($hdbBackupCheck) || die "Error: Unable to determine LD_LIBRARY_PATH.\n";
 my @backupInfo = qx($hdbBackupCheck -v $hanaBackupFile 2>&1);
 
+print @backupInfo if $ENV{DEBUG};
+
 if (defined $? and $?) {
     die "Error: Execution of hdbbackupcheck failed: ", $? >> 8, "\n", @backupInfo;
 }
-elsif (@backupInfo) {
-    my $backupId = List::Util::first {s/^\s*backupId\s*:\s*//} @backupInfo;
-    my $dbName = List::Util::first {s/^\s*DatabaseName\s*:\s*//} @backupInfo;
-    my $sid = List::Util::first {s/^\s*SID\s*:\s*//} @backupInfo;
-
-    if ($backupId and $dbName and $sid) {
-        chomp($backupId, $dbName, $sid);
-        my @out = qx($hdbsql -U SYSTEM_SYSTEMDB BACKUP CATALOG DELETE for $dbName ALL BEFORE BACKUP_ID $backupId complete 2>&1);
-
-        if (defined $? and $?) {
-            die "Error: Execution of hdbsql failed: ", $? >> 8, "\n", @out;
-        }
-        else {
-            say "Success: All backups before backup ID $backupId deleted.";
-        }
-    }
+if (not @backupInfo) {
+    die "Error: Unable to determine HANA Backup information from '$hanaBackupFile'.\n";
 }
-else {
+
+my $backupId = (grep {s/^\s*backupId\s*:\s*//} @backupInfo)[0]; print $backupId if $ENV{DEBUG};
+my $dbName = (grep {s/^\s*DatabaseName\s*:\s*//} @backupInfo)[0]; print $dbName if $ENV{DEBUG};
+my $sid = (grep {s/^\s*SID\s*:\s*//} @backupInfo)[0]; print $sid if $ENV{DEBUG};
+
+if ($backupId and $dbName and $sid) {
+    chomp($backupId, $dbName, $sid);
+    my @out = qx($hdbsql -U SYSTEM_SYSTEMDB BACKUP CATALOG DELETE for $dbName ALL BEFORE BACKUP_ID $backupId complete 2>&1);
+
+    if (defined $? and $?) {
+        die "Error: Execution of hdbsql failed: ", $? >> 8, "\n", @out;
+    }
+    else {
+        say "Success: All backups before backup ID $backupId deleted for $sid.";
+    }
+} else {
     die "Error: Unable to determine HANA Backup information from '$hanaBackupFile'.\n";
 }
