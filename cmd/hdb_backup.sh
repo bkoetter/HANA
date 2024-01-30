@@ -49,7 +49,7 @@ for env in HDB SID hdb sid db HOSTNAME; do
 done
 
 for tenant in SYSTEMDB DB_S4H DB_S4T; do
-  if [ ! -f /hana/shared/$HDB/HDB$db/backup/data/$tenant/MONTHLY_databackup_0_1 ]; then
+  if ! sudo -nu ${hdb}adm test -f /hana/shared/$HDB/HDB$db/backup/data/$tenant/MONTHLY_databackup_0_1; then
     echo "No backup history for $tenant from file /hana/shared/$HDB/HDB$db/backup/data/$tenant/MONTHLY_databackup_0_1"
   else
     echo "Cleaning up backup history for $tenant..."
