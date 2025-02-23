@@ -76,7 +76,7 @@ sub execSapHanaUpdate {
     my $cmd = do {
         if ($opts->{t} eq "cockpit") {
             my $hdblcm = getHdblcmExe("$opts->{d}/hdblcm.sh");
-            "cat $xml | $hdblcm --action=update --batch --component_root=$opts->{d} --sid=$ENV{SAPSYSTEMNAME} --system_user=$opts->{u} --verify_signature --read_password_from_stdin=xml -components=all --org_manager_user=COCKPIT_ADMIN --remote_execution=saphostagent";
+            "cat $xml | $hdblcm --action=update --batch --component_root=$opts->{d} --sid=$ENV{SAPSYSTEMNAME} --system_user=$opts->{u} --verify_signature --read_password_from_stdin=xml -components=server,xs,cockpit --org_manager_user=COCKPIT_ADMIN --remote_execution=saphostagent";
         }
         else {
             my $hdblcm = getHdblcmExe("$opts->{d}/SAP_HANA_DATABASE/hdblcm");
