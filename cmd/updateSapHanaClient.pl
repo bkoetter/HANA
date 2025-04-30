@@ -51,6 +51,7 @@ sub getHdbinst {
         "/catalog/02-extracted/sap-hana/SAP_HANA_CLIENT/hdbinst",
         "/opt/sap_media/SAP_HANA/SAP_HANA_CLIENT/hdbinst",
         "/usr/sap/shared/SAP/HANA/SAP_HANA_CLIENT/hdbinst",
+        "/var/sap-install/02_DB/01_HANA/2.00.79_4/extracted/SAP_HANA_CLIENT/hdbinst",
     );
     for my $hdbinst (@paths) {
         if (-x $hdbinst) {
